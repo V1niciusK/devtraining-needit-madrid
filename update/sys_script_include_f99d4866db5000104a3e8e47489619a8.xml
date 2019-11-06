@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_58872_needit.ValidatePhone</api_name>
+        <client_callable>true</client_callable>
+        <description/>
+        <name>ValidatePhone</name>
+        <script><![CDATA[var ValidatePhone = Class.create();
+ValidatePhone.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+    
+    CallValidation : function(){
+		//gs.info('01-01 CallValidation inside ValidatePhone called');
+        var dataToValidate = this.getParameter('sysparm_toValidate')+'';
+		//gs.info('01-02Parameter sysparm_toValidate set as:'+dataToValidate);
+        var answer = {value:'',changed:false,type_in:'',type_out:''};
+		//gs.info('01-03 answer set to: {value:'+answer.value+', change:'+answer.change+', type_in:'+answer.type_in+', type_out:'+answer.type_out+'}');
+		answer = this.ValidatePhoneFunction(dataToValidate);
+		//gs.info('01-04 answer set to: {value:'+answer.value+', change:'+answer.change+', type_in:'+answer.type_in+', type_out:'+answer.type_out+'}');
+        return JSON.stringify(answer);
+    },
+    
+    ValidatePhoneFunction : function(phoneNumberIn){
+		//gs.info('02-01 ValidatePhoneFunction called by server');
+        var phoneNumber = phoneNumberIn.toString();
+		//gs.info('02-02 phoneNumber set to:'+phoneNumber);
+        var responseOut = {value:'',change:false,type_in:'',type_out:''};
+		//gs.info('02-03 responseOut set to: {value:'+responseOut.value+', change:'+responseOut.change+', type_in:'+responseOut.type_in+', type_out:'+responseOut.type_out+'}');
+        var regularExpression_fixoInternacional = /^\+\d\d\s\(\d\d\)\s\d{4}-\d{4}$/; //formato +XX (XX) XXXX-XXXX
+        var regularExpression_celularInternacional = /^\+\d\d\s\(\d\d\)\s\d{5}-\d{4}$/; //formato +XX (XX) XXXXX-XXXX
+
+        var regularExpression_lettersOnly = /[A-z]/g;
+        var regularExpression_notNumbers = /\D/g;
+		
+		var phoneNumberLength = 0;
+		
+        if(!(regularExpression_celularInternacional.test(phoneNumber) || regularExpression_fixoInternacional.test(phoneNumber))){
+            phoneNumber = phoneNumber.replace(regularExpression_notNumbers,'');
+            phoneNumberLength = phoneNumber.length;
+			responseOut.change = true;
+			//gs.info('02-04 phoneNumber set to:'+phoneNumber);
+			//gs.info('02-05 phoneNumberLength set to:'+phoneNumberLength);
+            if(phoneNumberLength<10 || phoneNumberLength>13 || regularExpression_lettersOnly.test(phoneNumberIn)){
+                responseOut = {value:'Por favor inserir apenas números nos formatos (XX) XXXX-XXXX, (XX) XXXXX-XXXX, +XX (XX) XXXX-XXXX ou +XX (XX) XXXXX-XXXX.',change:true,type_out:'error'};
+				//gs.info('02-05 responseOut set to: {value:'+responseOut.value+', change:'+responseOut.change.toString()+', type_in:'+responseOut.type_in+', type_out:'+responseOut.type_out+'}');
+            }else{
+				//gs.info('02-06 got inside if error else');
+                
+				//gs.info('02-07 responseOut set to: {value:'+responseOut.value+', change:'+responseOut.change.toString()+', type_in:'+responseOut.type_in+', type_out:'+responseOut.type_out+'}');
+				switch(phoneNumberLength){
+					case 10:
+						//gs.info('02-08 got inside case10');
+                        responseOut.value = "+55 (" + phoneNumber.substring(0,2) + ") " + phoneNumber.substring(2,6) + "-" + phoneNumber.substring(6,10);
+                        responseOut.type_in = 'fixo_simples';
+                        responseOut.type_out = 'fixo_internacional';
+						//gs.info('02-09 responseOut set to: {value:'+responseOut.value+', change:'+responseOut.change.toString()+', type_in:'+responseOut.type_in+', type_out:'+responseOut.type_out+'}');
+						break;
+						
+					case 11:
+						responseOut.value = "+55 (" + phoneNumber.substring(0,2) + ") " + phoneNumber.substring(2,7) + "-" + phoneNumber.substring(7,11);
+						responseOut.type_in = 'celular_simples';
+                        responseOut.type_out = 'celular_internacional';
+						break;
+							
+					case 12:
+                        responseOut.value =  "+" + phoneNumber.substring(0,2) + " (" + phoneNumber.substring(2,4) + ") " + phoneNumber.substring(4,8) + "-" + phoneNumber.substring(8,12);
+						responseOut.type_in = 'fixo_internacional';
+						responseOut.type_out = 'fixo_internacional';
+						break;
+						
+					case 13:
+                        responseOut.value = "+" + phoneNumber.substring(0,2) + " (" + phoneNumber.substring(2,4) + ") " + phoneNumber.substring(4,9) + "-" + phoneNumber.substring(9,13);
+						responseOut.type_in = 'celular_internacional';
+						responseOut.type_out = 'celular_internacional';
+						break;
+				}
+				
+            }
+        }else{
+            responseOut.change = false;
+            phoneNumberLength = phoneNumber.length;
+			responseOut.value = phoneNumber;
+            switch(phoneNumberLength){
+                case 18:
+                    responseOut.type_in = 'fixo_internacional';
+                    responseOut.type_out = 'fixo_internacional';
+                    
+                    break;
+                case 19:
+                    responseOut.type_in = 'celular_internacional';
+                    responseOut.type_out = 'celular_internacional';
+                    break;
+            }
+        }
+		//gs.info('02-07 responseOut set to: {value:'+responseOut.value+', change:'+responseOut.change.toString()+', type_in:'+responseOut.type_in+', type_out:'+responseOut.type_out+'}');
+        return responseOut;
+    },
+	
+    type: 'ValidatePhone'
+});]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-10-07 16:38:56</sys_created_on>
+        <sys_id>f99d4866db5000104a3e8e47489619a8</sys_id>
+        <sys_mod_count>23</sys_mod_count>
+        <sys_name>ValidatePhone</sys_name>
+        <sys_package display_value="NeedIt" source="x_58872_needit">6ead8e780f603200cd674f8ce1050ed1</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="NeedIt">6ead8e780f603200cd674f8ce1050ed1</sys_scope>
+        <sys_update_name>sys_script_include_f99d4866db5000104a3e8e47489619a8</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-10-09 13:39:28</sys_updated_on>
+    </sys_script_include>
+</record_update>

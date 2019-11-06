@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_58872_needit.ValidateCNPJ</api_name>
+        <client_callable>true</client_callable>
+        <description/>
+        <name>ValidateCNPJ</name>
+        <script><![CDATA[var ValidateCNPJ = Class.create();
+ValidateCNPJ.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+	ValidateCNPJ: function() {
+		
+		var cnpj = this.getParameter('sysparm_toValidate').toString();
+		var response = '';
+		
+		var regularExpression_cnpj = /^\d\d\.\d{3}\.\d{3}\/\d{4}-\d\d$/; //formato 88.888.888/8888-88
+		var regularExpression_lettersOnly = /[A-z]/g;
+		var regularExpression_notNumbers = /\D/g;
+		
+		if (!regularExpression_cnpj.test(cnpj)) {
+			cnpj = cnpj.replace(regularExpression_notNumbers, '');
+			
+			if (cnpj.length != 14 || regularExpression_lettersOnly.test(cnpj)){
+				response = "CNPJ no formato incorreto, por favor insira um cnpj com 14 dígitos";
+			}else {
+				response = cnpj.substring(0,2) + "." + cnpj.substring(2,5) + "." + cnpj.substring(5,8) + "/" + cnpj.substring(8,12) + "-" + cnpj.substring(12,14);
+				
+			}
+		}
+		//Digito de Verificacao CNPJ
+		var valorVerificar = 0;
+		var dv = 0;
+		var pesos = [5,6,7,8,9,2,3,4,5,6,7,8,9];
+		if(response == ''){
+			valorVerificar = cnpj.replace(/\D/g,'');
+		}else if(response.length < 20){
+			valorVerificar = response.replace(/\D/g,'');
+		}else{
+			return response;
+		}
+
+		for (var i = 0; i < 12 ; i++){
+		  dv = dv + pesos[i+1]*parseInt(valorVerificar[i]);
+		}
+		dv = dv %= 11;
+		if(dv==10){dv=0;}
+
+		if(valorVerificar[12] != dv){
+			response = "CNPJ inválido, por favor verifique o número.";
+		}else{
+			dv = 0;
+			for (var i = 0; i < 13 ; i++){
+				dv = dv + pesos[i]*parseInt(valorVerificar[i]);
+			}
+			dv = dv %= 11;
+			if(dv==10){dv=0;}
+
+			if(valorVerificar[13] != dv){
+				response = "CNPJ inválido, por favor verifique o número.";
+			}
+		}
+		
+		return response;
+	},
+    type: 'ValidateCNPJ'
+});]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-10-08 19:43:44</sys_created_on>
+        <sys_id>65907572dbd000104a3e8e4748961942</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name>ValidateCNPJ</sys_name>
+        <sys_package display_value="NeedIt" source="x_58872_needit">6ead8e780f603200cd674f8ce1050ed1</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="NeedIt">6ead8e780f603200cd674f8ce1050ed1</sys_scope>
+        <sys_update_name>sys_script_include_65907572dbd000104a3e8e4748961942</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-10-09 14:09:27</sys_updated_on>
+    </sys_script_include>
+</record_update>
