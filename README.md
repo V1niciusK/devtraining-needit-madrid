@@ -1,3 +1,6 @@
+# ARCHIVAL NOTICE
+This repository is related to an outdated version of ServiceNow, and is currently archived. No further development, bugfixes or security patches will happen for this project and it is currently only maintained for historical purposes as of January 09th 2025 (2025/01/09).
+
 # Generated files
 This repository contains generated files and a checksum.
 
